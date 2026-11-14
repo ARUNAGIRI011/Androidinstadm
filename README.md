@@ -26,11 +26,11 @@ This is the initial project scaffold. The Android app is a UI shell; Meta OAuth,
 
 ## Android build
 
-Open `android/` in Android Studio, or build from the repository root with:
+Open `android/` in Android Studio, or install Gradle 8.13+ and build from the repository root with:
 
 ```bash
 cd android
-./gradlew assembleDebug
+gradle assembleDebug
 ```
 
 The GitHub Actions workflow builds the debug APK on pushes and pull requests. It does not publish a signed production APK.
