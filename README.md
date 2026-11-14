@@ -20,6 +20,18 @@ Android-first Instagram messaging assistant with an Android control app and a se
 - `docs/` — architecture, setup, security, and release notes.
 - `.github/workflows/` — Android CI build.
 
+## Product-page-only Instagram DM automation
+
+The backend now includes an opt-in, single-account message handler:
+- Receives Meta Instagram Messaging webhooks and validates `X-Hub-Signature-256`.
+- Matches inbound text against a configured keyword-to-product catalog.
+- Sends only the matching HTTPS product page URL through Meta's Send API.
+- Does not reply to unmatched messages, echoes, stale messages, or initiate conversations.
+- Uses SQLite message-ID claims to avoid duplicate replies during webhook retries.
+- Automation remains disabled by default until server secrets and product mappings are configured.
+
+See [backend setup and Meta configuration](backend/README.md). Instagram Messaging API access requires an eligible Instagram Professional account and the relevant Meta app permissions/review. A regular consumer account cannot use this API.
+
 ## Current status
 
 This is the initial project scaffold. The Android app is a UI shell; Meta OAuth, Graph API calls, webhook verification, backend persistence, AI integration, and billing are **not implemented yet**.
