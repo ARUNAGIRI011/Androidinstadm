@@ -104,12 +104,14 @@ app.post(
 
     try {
       for (const message of messages) {
-        if (eventStore.has(message.messageId)) {
+        if (!eventStore.claim(message.messageId)) {
           skipped++;
           continue;
         }
 
-        const outcome = await processInstagramMessage(message, {
+        let outcome: "ignored" | "no-product-match" | "sent";
+        try {
+          outcome = await processInstagramMessage(message, {
           catalog,
           sendConfig: {
             apiBaseUrl: env.META_GRAPH_API_BASE_URL,
@@ -117,12 +119,14 @@ app.post(
             accountId: env.INSTAGRAM_ACCOUNT_ID!,
             accessToken: env.INSTAGRAM_ACCESS_TOKEN!
           },
-          maxAgeHours: env.MAX_MESSAGE_AGE_HOURS
-        });
+            maxAgeHours: env.MAX_MESSAGE_AGE_HOURS
+          });
+          eventStore.complete(message.messageId, outcome);
+        } catch (error) {
+          eventStore.release(message.messageId);
+          throw error;
+        }
 
-        // Persist only after a successful send or a deliberate no-send decision.
-        // If Meta Send API fails, return 500 and allow webhook retry.
-        eventStore.record(message.messageId, outcome);
         if (outcome === "sent") sent++;
         else skipped++;
       }
